@@ -18,13 +18,13 @@ on:
         options:
         - "self-hosted"
         - "ubuntu-latest"
-  push:
-    paths-ignore:
-      - "docs/**"
-      - "**.md"
-    branches:
-      - dev
-      - stg
+  # push:
+  #   paths-ignore:
+  #     - "docs/**"
+  #     - "**.md"
+  #   branches:
+  #     - dev
+  #     - stg
 
 env:
   SERVICE_NAME: nginx
