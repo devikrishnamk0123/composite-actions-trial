@@ -21,7 +21,7 @@ outputs:
     value: ${{ steps.vars.outputs.PROJECT_PREFIX }}
   AWS_REGION: 
     description: "AWS REGION"
-    value: ${{ step.set_env.outputs.AWS_REGION }}
+    value: ${{ steps.set_env.outputs.AWS_REGION }}
   EKS_CLUSTER: 
     description: "EKS CLUSTER"
     value: ${{ steps.vars.outputs.EKS_CLUSTER }}
