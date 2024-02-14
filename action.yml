@@ -76,6 +76,7 @@ runs:
         echo "ENV=$ENV" >> $GITHUB_OUTPUT
         echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
     - name: set variables
+      shell: bash
       id: set_env
       run: |
         PROJECT_PREFIX=${{ steps.vars.outputs.PROJECT_PREFIX }}
