@@ -14,52 +14,52 @@ runs:
   using: "composite"
   steps:
     - name: vars
-  run: |
-
-    BRANCH="${GITHUB_REF}"
-    echo $BRANCH
-    # BRANCH="${GITHUB_REF#refs/heads/}"
-    # ENV=${{ github.event.inputs.environment }}
-    # echo $BRANCH
+      run: |
+        BRANCH="${GITHUB_REF_NAME}"
+        echo $BRANCH
+        BRANCH="${GITHUB_REF#refs/heads/}"
+        ENV=${{ github.event.inputs.environment }}
+        echo $BRANCH
+        
+        if [ -z "$ENV" ]
+        then
+          case $BRANCH in
+            "dev")
+              ENV="dev"
+              ;;
+            "stg")
+              ENV="stg"
+              ;;
+            "main")
+              ENV="prd"
+              ;;
+            *)
+              echo "ENV not configured" && exit 1
+              ;;
+          esac
+        fi
+        if [[ $ENV == 'prd' && $BRANCH == 'main' ]] 
+        then
+          echo "AWS_ROLE=PRD_AWS_ROLE" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=amgo-prd-mb" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=amgo-prd-mb-eks-cluster" >> $GITHUB_OUTPUT
+          echo "SLACK_WEBHOOK_URL=PRD_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
+        elif [ $ENV == 'stg' ]
+        then
+          echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=amgo-stg-mb" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=amgo-dev-mb-eks-cluster" >> $GITHUB_OUTPUT
+          echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
+        elif [ $ENV == 'dev' ]
+        then
+          echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=amgo-dev-mb" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=amgo-dev-mb-eks-cluster" >> $GITHUB_OUTPUT
+          echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
+        else
+          echo "Branch not configured!"
+          exit 1
+        fi  
+        echo "ENV=$ENV" >> $GITHUB_OUTPUT
+        echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
     
-    # if [ -z "$ENV" ]
-    # then
-    #   case $BRANCH in
-    #     "dev")
-    #       ENV="dev"
-    #       ;;
-    #     "stg")
-    #       ENV="stg"
-    #       ;;
-    #     "main")
-    #       ENV="prd"
-    #       ;;
-    #     *)
-    #       echo "ENV not configured" && exit 1
-    #       ;;
-    #   esac
-    # fi
-    # if [[ $ENV == 'prd' && $BRANCH == 'main' ]] 
-    # then
-    #   echo "AWS_ROLE=PRD_AWS_ROLE" >> $GITHUB_OUTPUT
-    #   echo "PROJECT_PREFIX=amgo-prd-mb" >> $GITHUB_OUTPUT
-    #   echo "EKS_CLUSTER=amgo-prd-mb-eks-cluster" >> $GITHUB_OUTPUT
-    #   echo "SLACK_WEBHOOK_URL=PRD_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
-    # elif [ $ENV == 'stg' ]
-    # then
-    #   echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
-    #   echo "PROJECT_PREFIX=amgo-stg-mb" >> $GITHUB_OUTPUT
-    #   echo "EKS_CLUSTER=amgo-dev-mb-eks-cluster" >> $GITHUB_OUTPUT
-    #   echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
-    # elif [ $ENV == 'dev' ]
-    # then
-    #   echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
-    #   echo "PROJECT_PREFIX=amgo-dev-mb" >> $GITHUB_OUTPUT
-    #   echo "EKS_CLUSTER=amgo-dev-mb-eks-cluster" >> $GITHUB_OUTPUT
-    #   echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
-    # else
-    #   echo "Branch not configured!"
-    #   exit 1
-    # fi  
-    # echo "ENV=$ENV" >> $GITHUB_OUTPUT
-    # echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
