@@ -27,7 +27,7 @@ on:
       - stg
 
 env:
-  SERVICE_NAME: webhook-service
+  SERVICE_NAME: nginx
 
 jobs:
   prepare-env:
@@ -89,7 +89,7 @@ jobs:
           else
             echo "Branch not configured!"
             exit 1
-          fi
+          fi  
           echo "ENV=$ENV" >> $GITHUB_OUTPUT
           echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
       - name: set variables
