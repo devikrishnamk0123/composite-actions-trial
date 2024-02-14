@@ -19,11 +19,21 @@ outputs:
   PROJECT_PREFIX: 
     description: "PROJECt_PREFIX"
     value: ${{ steps.vars.outputs.PROJECT_PREFIX }}
-  # AWS_REGION: ${{ steps.set_env.outputs.AWS_REGION }}
-  # EKS_CLUSTER: ${{ steps.vars.outputs.EKS_CLUSTER }}
-  # ECR_REPOSITORY: ${{ steps.set_env.outputs.ECR_REPOSITORY }}
-  # K8S_NAMESPACE: ${{ steps.set_env.outputs.K8S_NAMESPACE }}
-  # SLACK_WEBHOOK_URL: ${{ steps.vars.outputs.SLACK_WEBHOOK_URL }}
+  AWS_REGION: 
+    description: "AWS REGION"
+    value: ${{ step.set_env.outputs.AWS_REGION}}
+  EKS_CLUSTER: 
+    description: "EKS CLUSTER"
+    value: ${{ steps.vars.outputs.EKS_CLUSTER }}
+  ECR_REPOSITORY: 
+    description: "ECR REPOSITORY"
+    value: ${{ steps.set_env.outputs.ECR_REPOSITORY }}
+  K8S_NAMESPACE: 
+    description: "K8S NAMESPACE"
+    value: ${{ steps.set_env.outputs.K8S_NAMESPACE }}
+  SLACK_WEBHOOK_URL:
+    description: "SLACK WEBHOOK URL"
+    value: ${{ steps.vars.outputs.SLACK_WEBHOOK_URL }}
 runs:
   using: "composite"
   steps:
