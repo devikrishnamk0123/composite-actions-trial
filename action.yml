@@ -10,14 +10,20 @@ inputs:
     description: 'The branch'
     required: true
 outputs:
-  AWS_ROLE: ${{ steps.vars.outputs.AWS_ROLE }}
-  ENV: ${{ steps.vars.outputs.ENV }}
-  PROJECT_PREFIX: ${{ steps.vars.outputs.PROJECT_PREFIX }}
-  AWS_REGION: ${{ steps.set_env.outputs.AWS_REGION }}
-  EKS_CLUSTER: ${{ steps.vars.outputs.EKS_CLUSTER }}
-  ECR_REPOSITORY: ${{ steps.set_env.outputs.ECR_REPOSITORY }}
-  K8S_NAMESPACE: ${{ steps.set_env.outputs.K8S_NAMESPACE }}
-  SLACK_WEBHOOK_URL: ${{ steps.vars.outputs.SLACK_WEBHOOK_URL }}
+  AWS_ROLE: 
+    description: "AWS Role"
+    value: ${{ steps.vars.outputs.AWS_ROLE }}
+  ENV: 
+    description: "ENV"
+    value: ${{ steps.vars.outputs.ENV }}
+  PROJECT_PREFIX: 
+    description: "PROJECt_PREFIX"
+    value: ${{ steps.vars.outputs.PROJECT_PREFIX }}
+  # AWS_REGION: ${{ steps.set_env.outputs.AWS_REGION }}
+  # EKS_CLUSTER: ${{ steps.vars.outputs.EKS_CLUSTER }}
+  # ECR_REPOSITORY: ${{ steps.set_env.outputs.ECR_REPOSITORY }}
+  # K8S_NAMESPACE: ${{ steps.set_env.outputs.K8S_NAMESPACE }}
+  # SLACK_WEBHOOK_URL: ${{ steps.vars.outputs.SLACK_WEBHOOK_URL }}
 runs:
   using: "composite"
   steps:
