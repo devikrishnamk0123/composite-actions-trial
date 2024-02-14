@@ -47,7 +47,7 @@ jobs:
     steps:
       - id: vars
         run: |
-          BRANCH="${GITHUB_REF}"
+          BRANCH="${GITHUB_REF#refs/heads/}"
           ENV=${{ github.event.inputs.environment }}
           echo $BRANCH
           
@@ -91,7 +91,7 @@ jobs:
             exit 1
           fi  
           echo "ENV=$ENV" >> $GITHUB_OUTPUT
-          # echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
+          echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
       - name: set variables
         id: set_env
         run: |
