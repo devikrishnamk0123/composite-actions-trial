@@ -47,7 +47,7 @@ jobs:
     steps:
       - id: vars
         run: |
-          BRANCH="${GITHUB_REF#refs/heads/}"
+          BRANCH="${GITHUB_REF_NAME}"
           ENV=${{ github.event.inputs.environment }}
           echo $BRANCH
           
