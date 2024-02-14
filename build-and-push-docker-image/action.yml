@@ -1,0 +1,14 @@
+name: "Prepare env"
+description: 'Preparing env'
+inputs:
+  branch:
+  description: 'The branch'
+  required: true
+
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout repository on : ${{ github.REF }}"
+      shell: bash
+      uses: actions/checkout@v2

@@ -47,7 +47,7 @@ jobs:
     steps:
       - id: vars
         run: |
-          BRANCH="${GITHUB_REF_NAME}"
+          BRANCH="${GITHUB_REF}"
           ENV=${{ github.event.inputs.environment }}
           echo $BRANCH
           
@@ -104,110 +104,110 @@ jobs:
           echo "AWS_REGION=ap-south-1"  >> $GITHUB_OUTPUT
           echo ":seedling: Branch - ${GITHUB_REF#refs/heads/}" >> $GITHUB_STEP_SUMMARY
   # Building and Pushing Image to ECR
-  # build-push-image:
-  #   name: Build and Push Image
-  #   runs-on: ${{ (inputs.RUNNER) || 'ubuntu-latest' }}
-  #   timeout-minutes: 20
-  #   permissions:
-  #     id-token: write
-  #     pull-requests: write
-  #     contents: read
-  #   needs: prepare-env
-  #   env:
-  #     ENV: ${{ needs.prepare-env.outputs.ENV }}
-  #     AWS_ROLE: ${{needs.prepare-env.outputs.AWS_ROLE}}
-  #     AWS_REGION: ${{needs.prepare-env.outputs.AWS_REGION}}
-  #     PROJECT_PREFIX: ${{needs.prepare-env.outputs.PROJECT_PREFIX}}
-  #     ECR_REPOSITORY: ${{needs.prepare-env.outputs.ECR_REPOSITORY}}
+  build-push-image:
+    name: Build and Push Image
+    runs-on: ${{ (inputs.RUNNER) || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    permissions:
+      id-token: write
+      pull-requests: write
+      contents: read
+    needs: prepare-env
+    env:
+      ENV: ${{ needs.prepare-env.outputs.ENV }}
+      AWS_ROLE: ${{needs.prepare-env.outputs.AWS_ROLE}}
+      AWS_REGION: ${{needs.prepare-env.outputs.AWS_REGION}}
+      PROJECT_PREFIX: ${{needs.prepare-env.outputs.PROJECT_PREFIX}}
+      ECR_REPOSITORY: ${{needs.prepare-env.outputs.ECR_REPOSITORY}}
 
-  #   outputs:
-  #     ECR_REPO: ${{ steps.image.outputs.ECR_REPO }}
-  #     ECR_REGISTRY: ${{ steps.image.outputs.ECR_REGISTRY }}
-  #     IMAGE_TAG: ${{ steps.image.outputs.IMAGE_TAG }}
+    outputs:
+      ECR_REPO: ${{ steps.image.outputs.ECR_REPO }}
+      ECR_REGISTRY: ${{ steps.image.outputs.ECR_REGISTRY }}
+      IMAGE_TAG: ${{ steps.image.outputs.IMAGE_TAG }}
 
-  #   steps:
-  #     - name: "Checkout repository on : ${{ github.REF }}"
-  #       uses: actions/checkout@v2
-  #     -
-  #       # Add support for more platforms with QEMU (optional)
-  #       # https://github.com/docker/setup-qemu-action
-  #       name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v2
-  #     -
-  #       name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
+    steps:
+      - name: "Checkout repository on : ${{ github.REF }}"
+        uses: actions/checkout@v2
+      -
+        # Add support for more platforms with QEMU (optional)
+        # https://github.com/docker/setup-qemu-action
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
         
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1.7.0
-  #       with:
-  #         role-to-assume: ${{ secrets[env.AWS_ROLE] }}
-  #         aws-region: ${{ env.AWS_REGION }}
-  #         mask-aws-account-id: "no"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: ${{ secrets[env.AWS_ROLE] }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: "no"
 
-  #     - name: Amazon ECR Login
-  #       id: login-ecr
-  #       uses: aws-actions/amazon-ecr-login@v1
+      - name: Amazon ECR Login
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-  #     - name: Build and push to Amazon ECR
-  #       id: build
-  #       uses: docker/build-push-action@v3
-  #       env:
-  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #         IMAGE_TAG: ${{ github.sha }}
-  #         GITHUB_ACTOR: ${{ github.actor }}
-  #         GITHUB_TOKEN: ${{ secrets.COMMONS_TOKEN }}
-  #       with:
-  #         context: .
-  #         file: ./Dockerfile
-  #         push: true
-  #         platforms: linux/amd64
-  #         tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-  #         build-args: |
-  #           BUILD_ENV=${{ env.ENV }}
-  #           GITHUB_ACTOR=${{ env.GITHUB_ACTOR }}
-  #           GITHUB_TOKEN=${{ env.GITHUB_TOKEN }}
+      - name: Build and push to Amazon ECR
+        id: build
+        uses: docker/build-push-action@v3
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.COMMONS_TOKEN }}
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          build-args: |
+            BUILD_ENV=${{ env.ENV }}
+            GITHUB_ACTOR=${{ env.GITHUB_ACTOR }}
+            GITHUB_TOKEN=${{ env.GITHUB_TOKEN }}
 
-  #     - name: Build Image Name
-  #       id: image
-  #       run: |
-  #         ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
-  #         echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}"  >> $GITHUB_OUTPUT
-  #         echo "ECR_REPO=$ECR_REGISTRY/$ECR_REPOSITORY"  >> $GITHUB_OUTPUT
-  #         echo "IMAGE_TAG=${{ github.sha }}"  >> $GITHUB_OUTPUT
+      - name: Build Image Name
+        id: image
+        run: |
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}"  >> $GITHUB_OUTPUT
+          echo "ECR_REPO=$ECR_REGISTRY/$ECR_REPOSITORY"  >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=${{ github.sha }}"  >> $GITHUB_OUTPUT
 
-### slack alert
+## slack alert
 
-  # slack-notification:
-  #     name: Slack Notification
-  #     if: always()
-  #     runs-on: ${{ (inputs.RUNNER) || 'ubuntu-latest' }}
-  #     needs:
-  #       - prepare-env
-  #       - build-push-image
-  #     env:
-  #      SLACK_WEBHOOK_URL: ${{needs.prepare-env.outputs.SLACK_WEBHOOK_URL}}
-  #     steps:
-  #     - uses: technote-space/workflow-conclusion-action@v3
-  #     - name: Update slack message body 
-  #       id: body
-  #       run: |
-  #         if [ '${{ env.WORKFLOW_CONCLUSION }}' == 'success' ]
-  #         then
-  #           echo "::set-output name=SLACK_MESSAGE::Success :white_check_mark:"
-  #         elif [ '${{ env.WORKFLOW_CONCLUSION }}'  == 'failure' ]
-  #         then
-  #           echo "::set-output name=SLACK_MESSAGE::Failed :x:"  
-  #         elif [ '${{ env.WORKFLOW_CONCLUSION }}'  == 'cancelled' ]
-  #         then
-  #           echo "::set-output name=SLACK_MESSAGE::Cancelled :grey_exclamation:"  
-  #         fi
-  #     - name: Slack Notification
-  #       uses: rtCamp/action-slack-notify@v2
-  #       env:
-  #         SLACK_COLOR: ${{ env.WORKFLOW_CONCLUSION }} # or a specific color like 'good' or '#ff00ff'
-  #         SLACK_ICON: https://waffarly.net/wp-content/uploads/2021/07/6thstreet-logo-2021-en-arabiccoupon-400x400-1-150x150.jpg
-  #         SLACK_MESSAGE: ${{ steps.body.outputs.SLACK_MESSAGE }}
-  #         SLACK_TITLE: Build Status
-  #         SLACK_FOOTER: '<${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>'
-  #         SLACK_USERNAME: Boxaty-Devops
-  #         SLACK_WEBHOOK: ${{ secrets[env.SLACK_WEBHOOK_URL] }}
+  slack-notification:
+      name: Slack Notification
+      if: always()
+      runs-on: ${{ (inputs.RUNNER) || 'ubuntu-latest' }}
+      needs:
+        - prepare-env
+        - build-push-image
+      env:
+       SLACK_WEBHOOK_URL: ${{needs.prepare-env.outputs.SLACK_WEBHOOK_URL}}
+      steps:
+      - uses: technote-space/workflow-conclusion-action@v3
+      - name: Update slack message body 
+        id: body
+        run: |
+          if [ '${{ env.WORKFLOW_CONCLUSION }}' == 'success' ]
+          then
+            echo "::set-output name=SLACK_MESSAGE::Success :white_check_mark:"
+          elif [ '${{ env.WORKFLOW_CONCLUSION }}'  == 'failure' ]
+          then
+            echo "::set-output name=SLACK_MESSAGE::Failed :x:"  
+          elif [ '${{ env.WORKFLOW_CONCLUSION }}'  == 'cancelled' ]
+          then
+            echo "::set-output name=SLACK_MESSAGE::Cancelled :grey_exclamation:"  
+          fi
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: ${{ env.WORKFLOW_CONCLUSION }} # or a specific color like 'good' or '#ff00ff'
+          SLACK_ICON: https://waffarly.net/wp-content/uploads/2021/07/6thstreet-logo-2021-en-arabiccoupon-400x400-1-150x150.jpg
+          SLACK_MESSAGE: ${{ steps.body.outputs.SLACK_MESSAGE }}
+          SLACK_TITLE: Build Status
+          SLACK_FOOTER: '<${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>'
+          SLACK_USERNAME: Boxaty-Devops
+          SLACK_WEBHOOK: ${{ secrets[env.SLACK_WEBHOOK_URL] }}
