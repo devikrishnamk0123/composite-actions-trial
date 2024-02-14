@@ -9,7 +9,15 @@ inputs:
   branch:
     description: 'The branch'
     required: true
-  
+outputs:
+  AWS_ROLE: ${{ steps.vars.outputs.AWS_ROLE }}
+  ENV: ${{ steps.vars.outputs.ENV }}
+  PROJECT_PREFIX: ${{ steps.vars.outputs.PROJECT_PREFIX }}
+  AWS_REGION: ${{ steps.set_env.outputs.AWS_REGION }}
+  EKS_CLUSTER: ${{ steps.vars.outputs.EKS_CLUSTER }}
+  ECR_REPOSITORY: ${{ steps.set_env.outputs.ECR_REPOSITORY }}
+  K8S_NAMESPACE: ${{ steps.set_env.outputs.K8S_NAMESPACE }}
+  SLACK_WEBHOOK_URL: ${{ steps.vars.outputs.SLACK_WEBHOOK_URL }}
 runs:
   using: "composite"
   steps:
@@ -18,9 +26,7 @@ runs:
       run: |
         BRANCH="${GITHUB_REF_NAME}"
         echo $BRANCH
-        BRANCH="${GITHUB_REF#refs/heads/}"
         ENV=${{ github.event.inputs.environment }}
-        echo $BRANCH
         
         if [ -z "$ENV" ]
         then
@@ -63,4 +69,15 @@ runs:
         fi  
         echo "ENV=$ENV" >> $GITHUB_OUTPUT
         echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
+    - name: set variables
+      id: set_env
+      run: |
+        PROJECT_PREFIX=${{ steps.vars.outputs.PROJECT_PREFIX }}
+        ECR_REPOSITORY=$PROJECT_PREFIX-ecr-$SERVICE_NAME
+        echo "K8S_NAMESPACE=amigoship" >> $GITHUB_OUTPUT
+        echo "PROJECT_PREFIX=$PROJECT_PREFIX"  >> $GITHUB_OUTPUT
+        echo "ECR_REPOSITORY=$ECR_REPOSITORY"  >> $GITHUB_OUTPUT
+        echo "ENVIRONMENT_BUCKET=$ENVIRONMENT_BUCKET"  >> $GITHUB_OUTPUT
+        echo "AWS_REGION=ap-south-1"  >> $GITHUB_OUTPUT
+        echo ":seedling: Branch - ${GITHUB_REF#refs/heads/}" >> $GITHUB_STEP_SUMMARY
     
