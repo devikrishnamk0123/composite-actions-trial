@@ -38,6 +38,7 @@ runs:
   using: "composite"
   steps:
     - name: vars
+      id: vars
       shell: bash
       run: |
         BRANCH="${GITHUB_REF_NAME}"
