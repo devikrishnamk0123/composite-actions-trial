@@ -65,7 +65,7 @@ runs:
         if [[ $ENV == 'prd' && $BRANCH == 'main' ]] 
         then
           echo "AWS_ROLE=PRD_AWS_ROLE" >> $GITHUB_OUTPUT
-          echo "PROJECT_PREFIX=amgo-prd-mb" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=devi" >> $GITHUB_OUTPUT
           echo "EKS_CLUSTER=amgo-prd-mb-eks-cluster" >> $GITHUB_OUTPUT
           echo "SLACK_WEBHOOK_URL=PRD_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
         elif [ $ENV == 'stg' ]
@@ -77,8 +77,8 @@ runs:
         elif [ $ENV == 'dev' ]
         then
           echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
-          echo "PROJECT_PREFIX=amgo-dev-mb" >> $GITHUB_OUTPUT
-          echo "EKS_CLUSTER=amgo-dev-mb-eks-cluster" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=devi" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=devi-cluster" >> $GITHUB_OUTPUT
           echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
         else
           echo "Branch not configured!"
@@ -96,6 +96,6 @@ runs:
         echo "PROJECT_PREFIX=$PROJECT_PREFIX"  >> $GITHUB_OUTPUT
         echo "ECR_REPOSITORY=$ECR_REPOSITORY"  >> $GITHUB_OUTPUT
         echo "ENVIRONMENT_BUCKET=$ENVIRONMENT_BUCKET"  >> $GITHUB_OUTPUT
-        echo "AWS_REGION=ap-south-1"  >> $GITHUB_OUTPUT
+        echo "AWS_REGION=us-east-2"  >> $GITHUB_OUTPUT
         echo ":seedling: Branch - ${GITHUB_REF#refs/heads/}" >> $GITHUB_STEP_SUMMARY
     

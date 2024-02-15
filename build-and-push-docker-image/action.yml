@@ -20,6 +20,9 @@ inputs:
   ECR_REPOSITORY:
     description: 'ECR REPOSITORY'
     required: true
+  COMMON_TOKEN:
+    description: 'COMMON TOKEN'
+    required: true
 outputs:
     ECR_REPO: 
       description: 'ECR Repo'
@@ -37,10 +40,10 @@ runs:
       uses: actions/checkout@v4
 
     - name: "Set up QEMU"
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1.7.0
@@ -55,12 +58,12 @@ runs:
 
     - name: Build and push to Amazon ECR
       id: build
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v5
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
         GITHUB_ACTOR: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.COMMONS_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.COMMONS_TOKEN }}
       with:
         context: .
         file: ./Dockerfile
