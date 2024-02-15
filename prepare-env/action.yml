@@ -85,8 +85,6 @@ runs:
           exit 1
         fi  
         echo "ENV=$ENV" >> $GITHUB_OUTPUT
-        echo "ENV=$ENV"
-        echo "AWS_ROLE=$AWS_ROLE"
         echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
     - name: set variables
       shell: bash
