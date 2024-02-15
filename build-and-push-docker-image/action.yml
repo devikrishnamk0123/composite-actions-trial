@@ -53,6 +53,7 @@ runs:
         mask-aws-account-id: "no"
 
     - name: Amazon ECR Login
+      shell: bash
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
@@ -76,6 +77,7 @@ runs:
           GITHUB_TOKEN=${{ env.GITHUB_TOKEN }}
 
     - name: Build Image Name
+      shell: bash
       id: image
       run: |
         ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
