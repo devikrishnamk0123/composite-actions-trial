@@ -53,7 +53,6 @@ runs:
         mask-aws-account-id: "no"
 
     - name: Amazon ECR Login
-      shell: bash
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
