@@ -21,9 +21,15 @@ inputs:
     description: 'ECR REPOSITORY'
     required: true
 outputs:
-    ECR_REPO: ${{ steps.image.outputs.ECR_REPO }}
-    ECR_REGISTRY: ${{ steps.image.outputs.ECR_REGISTRY }}
-    IMAGE_TAG: ${{ steps.image.outputs.IMAGE_TAG }}
+    ECR_REPO: 
+      description: 'ECR Repo'
+      value: ${{ steps.image.outputs.ECR_REPO }}
+    ECR_REGISTRY: 
+      description: 'ECR Registry'
+      value: ${{ steps.image.outputs.ECR_REGISTRY }}
+    IMAGE_TAG:
+      description: 'IMAGE TAG'
+      value: ${{ steps.image.outputs.IMAGE_TAG }}
 runs:
   using: "composite"
   steps:
