@@ -1,0 +1,101 @@
+name: "Prepare env"
+description: 'Preparing env'
+inputs:
+  environment:
+    description: 'The environment on which the pipeline is running'
+    required: true
+    default: 'dev'
+
+  branch:
+    description: 'The branch'
+    required: true
+outputs:
+  AWS_ROLE: 
+    description: "AWS Role"
+    value: ${{ steps.vars.outputs.AWS_ROLE }}
+  ENV: 
+    description: "ENV"
+    value: ${{ steps.vars.outputs.ENV }}
+  PROJECT_PREFIX: 
+    description: "PROJECt_PREFIX"
+    value: ${{ steps.vars.outputs.PROJECT_PREFIX }}
+  AWS_REGION: 
+    description: "AWS REGION"
+    value: ${{ steps.set_env.outputs.AWS_REGION }}
+  EKS_CLUSTER: 
+    description: "EKS CLUSTER"
+    value: ${{ steps.vars.outputs.EKS_CLUSTER }}
+  ECR_REPOSITORY: 
+    description: "ECR REPOSITORY"
+    value: ${{ steps.set_env.outputs.ECR_REPOSITORY }}
+  K8S_NAMESPACE: 
+    description: "K8S NAMESPACE"
+    value: ${{ steps.set_env.outputs.K8S_NAMESPACE }}
+  SLACK_WEBHOOK_URL:
+    description: "SLACK WEBHOOK URL"
+    value: ${{ steps.vars.outputs.SLACK_WEBHOOK_URL }}
+runs:
+  using: "composite"
+  steps:
+    - name: vars
+      id: vars
+      shell: bash
+      run: |
+        BRANCH="${GITHUB_REF_NAME}"
+        echo $BRANCH
+        ENV=${{ github.event.inputs.environment }}
+        
+        if [ -z "$ENV" ]
+        then
+          case $BRANCH in
+            "dev")
+              ENV="dev"
+              ;;
+            "stg")
+              ENV="stg"
+              ;;
+            "main")
+              ENV="prd"
+              ;;
+            *)
+              echo "ENV not configured" && exit 1
+              ;;
+          esac
+        fi
+        if [[ $ENV == 'prd' && $BRANCH == 'main' ]] 
+        then
+          echo "AWS_ROLE=PRD_AWS_ROLE" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=devi" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=amgo-prd-mb-eks-cluster" >> $GITHUB_OUTPUT
+          echo "SLACK_WEBHOOK_URL=PRD_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
+        elif [ $ENV == 'stg' ]
+        then
+          echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=amgo-stg-mb" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=amgo-dev-mb-eks-cluster" >> $GITHUB_OUTPUT
+          echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
+        elif [ $ENV == 'dev' ]
+        then
+          echo "AWS_ROLE=DEV_AWS_ROLE" >> $GITHUB_OUTPUT
+          echo "PROJECT_PREFIX=devi" >> $GITHUB_OUTPUT
+          echo "EKS_CLUSTER=devi-cluster" >> $GITHUB_OUTPUT
+          echo "SLACK_WEBHOOK_URL=DEV_SLACK_WEBHOOK_URL" >> $GITHUB_OUTPUT
+        else
+          echo "Branch not configured!"
+          exit 1
+        fi  
+        echo "ENV=$ENV" >> $GITHUB_OUTPUT
+        echo ":rocket: Environment - $ENV" >> $GITHUB_STEP_SUMMARY
+    - name: set variables
+      shell: bash
+      id: set_env
+      run: |
+        PROJECT_PREFIX=${{ steps.vars.outputs.PROJECT_PREFIX }}
+        ECR_REPOSITORY=$PROJECT_PREFIX-ecr-$SERVICE_NAME
+        echo "K8S_NAMESPACE=amigoship" >> $GITHUB_OUTPUT
+        echo "PROJECT_PREFIX=$PROJECT_PREFIX"  >> $GITHUB_OUTPUT
+        echo "ECR_REPOSITORY=$ECR_REPOSITORY"  >> $GITHUB_OUTPUT
+        echo "ENVIRONMENT_BUCKET=$ENVIRONMENT_BUCKET"  >> $GITHUB_OUTPUT
+        echo "AWS_REGION=us-east-2"  >> $GITHUB_OUTPUT
+        echo ":seedling: Branch - ${GITHUB_REF#refs/heads/}" >> $GITHUB_STEP_SUMMARY
+    
